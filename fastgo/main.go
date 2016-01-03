@@ -1,22 +1,20 @@
 package main
 
 import (
-	"fmt"
 	"flag"
+	"fmt"
+	"log"
 	"os"
 	"os/signal"
-	"syscall"
 	"runtime"
-	"log"
+	"syscall"
 )
 
 var (
-	showVersion  = flag.Bool("v", false, "print version string")
+	showVersion = flag.Bool("v", false, "print version string")
 
-	srcFileDir  = flag.String("srcFileDir", "./srcFiles", "srcFileDir")
+	moduleDir = flag.String("moduleDir", "./module", "moduleDir")
 )
-
-
 
 func main() {
 	flag.Parse()
@@ -46,7 +44,7 @@ func main() {
 	}()
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 	signal.Notify(signalIgnoreChan, syscall.SIGPIPE)
-	
+
 	server := NewServer()
 	server.Start()
 

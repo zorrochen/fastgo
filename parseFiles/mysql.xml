@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<root>
+	<tables>
+		<table>
+			<name>testTable</name>
+			<columns>
+				<column name="col1" type="string"></column>
+				<column name="col2" type="string"></column>
+			</columns>
+			<primaryKey>col1</primaryKey>	
+		</table>
+		
+		<table>
+			<name>testTable2</name>
+			<columns>
+				<column name="col1" type="int"></column>
+				<column name="col2" type="int"></column>
+			</columns>
+			<primaryKey>col1</primaryKey>	
+		</table>
+	</tables>
+</root>
