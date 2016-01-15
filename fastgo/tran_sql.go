@@ -1,5 +1,9 @@
 package main
-import "fmt"
+import (
+	"fmt"
+	"strings"
+	"encoding/xml"
+)
 
 type tran_sql_t struct {
 
@@ -20,6 +24,48 @@ type column_fmt_t struct {
 	ColType string `xml:"type,attr"`
 }
 
+
+func (owner *tran_sql_t) tranXml(sqlStr string) (string, error) {
+	maybeTbs := strings.Split(sqlStr, ";")
+
+	tsf := tables_fmt_t{}
+	for _, mt := range maybeTbs {
+		if !strings.Contains(mt, "CREATE TABLE") {
+			continue
+		}
+
+		a := strings.Split(strings.TrimSpace(mt), "` (")[0]
+		b := strings.Split(strings.TrimSpace(a), "CREATE TABLE `")[1]
+
+		var tf table_fmt_t
+		tf.Name = strings.TrimSpace(b)
+
+		c := strings.Split(strings.TrimSpace(mt), "` (")[1]
+		d := strings.Split(strings.TrimSpace(c), "\n)")[0]
+		e := strings.Split(strings.TrimSpace(d), ",\n")
+		for _, f := range e {
+			if strings.TrimSpace(f) == "" {
+				continue
+			}
+
+			fs := strings.Split(strings.TrimSpace(f), " ")
+
+			var cf column_fmt_t
+			cf.Name = strings.TrimSpace(fs[0])
+			cf.ColType = strings.TrimSpace(fs[1])
+			tf.Columns = append(tf.Columns, cf)
+		}
+
+		tsf.TablesInfo = append(tsf.TablesInfo, tf)
+	}
+
+	tsfXmlBytes, err := xml.Marshal(tsf)
+	if err != nil {
+		return "", err
+	}
+
+	return string(tsfXmlBytes), nil
+}
 
 func (owner *tran_sql_t) genStruct(t *table_fmt_t) (string, error) {
 	ret := ""

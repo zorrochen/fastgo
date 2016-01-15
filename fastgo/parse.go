@@ -11,8 +11,10 @@ const (
 )
 
 const (
-	FILE_MYSQL_FMT = "mysql.xml"
+	FILE_MYSQL_XML = "mysql.xml"
+	FILE_MYSQL_SQL = "mysql.sql"
 	FILE_MYSQL_OUT = "mysql.go"
+	FILE_RET_CODE = "ret_code.go"
 )
 
 type parse_and_write_t struct {
@@ -36,7 +38,13 @@ func (obj *parse_and_write_t) Parse() error {
 		}
 	}
 
-	err = parseMysql(FILE_MYSQL_FMT)
+	err = parseMysqlSql(FILE_MYSQL_SQL)
+	if err != nil {
+		log.Printf("Error:%v", err)
+		return err
+	}
+
+	err = parseMysqlXml(FILE_MYSQL_XML)
 	if err != nil {
 		log.Printf("Error:%v", err)
 		return err
@@ -75,8 +83,29 @@ func parse(fileName string) error {
 }
 
 
-func parseMysql(fileName string) error {
-	srcDat, err := readFile(DIR_MYSQL + fileName)
+func parseMysqlSql(fileName string) error {
+	srcDat, err := readFile(fileName)
+	if err != nil {
+		log.Printf("Error:%v", err)
+		return err
+	}
+
+	srcMysqlXmlStr, err := global_server_ref.tranSqlObj.tranXml(string(srcDat))
+	if err != nil {
+		log.Printf("Error:%v", err)
+		return err
+	}
+
+	err = writeFile(FILE_MYSQL_XML, srcMysqlXmlStr)
+	if err != nil {
+		log.Printf("Error:%v", err)
+		return err
+	}
+	return nil
+}
+
+func parseMysqlXml(fileName string) error {
+	srcDat, err := readFile(fileName)
 	if err != nil {
 		log.Printf("Error:%v", err)
 		return err
@@ -105,5 +134,28 @@ func parseMysql(fileName string) error {
 		log.Printf("Error:%v", err)
 		return err
 	}
+	return nil
+}
+
+
+func parseRetcode() error {
+	srcDat, err := readFile(FILE_RET_CODE)
+	if err != nil {
+		log.Printf("Error:%v", err)
+		return err
+	}
+
+	retStr, err := procData(string(srcDat))
+	if err != nil {
+		log.Printf("Error:%v", err)
+		return err
+	}
+
+	err = writeFile(FILE_RET_CODE, retStr)
+	if err != nil {
+		log.Printf("Error:%v", err)
+		return err
+	}
+
 	return nil
 }
