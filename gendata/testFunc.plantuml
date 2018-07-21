@@ -1,14 +1,5 @@
 @startuml
 
-title Ccv2CircleInfo(圈子信息获取)
-
-start
-:circleBaseInfo;
-note right: 获取圈子基本信息
-:mycircles;
-note right: 获取已加入圈子
-:circleCombinInfo;
-note right: 圈子基础信息添加圈子是否已加入状态
-stop
+title add(整数相加)
 
 @enduml

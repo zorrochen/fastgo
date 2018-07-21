@@ -16,3 +16,77 @@
 3. 多人协作开发，都能保证主体代码规范一致
 4. 数据结构自动生成，节省大量编码成本
 5. 统一化极简化的单元测试用例，可开放测试人员管理，打破开发到测试的技术墙
+
+## usage
+
+参数说明：func指函数名；mock判断是否生成mock数据；srv指定项目; type指定是处理函数还是第三方请求函数
+```
+go run main.go -v:
+  -func string
+        function
+  -mock
+        mock data switch
+  -srv string
+        service
+  -type int
+        function type, 1:handle 2:proxy
+```
+
+举例： 实现add(a,b)函数
+
+gendata/testFunc.plantuml文件：
+```
+@startuml
+
+title add(整数相加)
+
+@enduml
+```
+
+gendata/testFunc文件：
+```
+add
+
+{
+  "a": 1,
+  "b": 2
+}
+
+{
+  "c": 3
+}
+```
+执行：go run main.go -srv fastgo -func testFunc -mock true
+
+将在$GOPATH/src下，fastgo项目的gendata目录，寻找testFunc文件作为初始数据,然后在handle目录，自动生成代码：
+```
+//================= add =================
+type addReq struct {
+	A int64 `json:"a"`
+	B int64 `json:"b"`
+}
+
+type addResp struct {
+	C int64 `json:"c"`
+}
+
+//整数相加
+func add(req addReq) (*addResp, error) {
+	rst := &addResp{}
+
+	//mockdata
+	rst = mockadd(req)
+
+	return rst, nil
+}
+
+//mock add
+func mockadd(req addReq) *addResp {
+	rst := &addResp{}
+
+	rst.C = 3
+
+	return rst
+}
+
+```
