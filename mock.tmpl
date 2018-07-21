@@ -1,0 +1,7 @@
+//mock {{.funcname}}
+func mock{{.funcname}}(req {{.funcname}}Req) *{{.funcname}}Resp {
+  rst := &{{.funcname}}Resp{}
+
+  {{.body}}
+  return rst
+}

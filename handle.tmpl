@@ -1,0 +1,9 @@
+//{{.funcnote}}
+func {{.funcname}}(req {{.funcname}}Req) (*{{.funcname}}Resp, error) {
+  rst := &{{.funcname}}Resp{}
+  {{if .mockflag}}
+    //mockdata
+    rst = mock{{.funcname}}(req)
+  {{end}}
+  return rst, nil
+}
