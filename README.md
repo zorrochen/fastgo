@@ -21,7 +21,7 @@
 
 参数说明：func指函数名；mock判断是否生成mock数据；srv指定项目; type指定是处理函数还是第三方请求函数
 ```
-go run main.go -v:
+fastgo:
   -func string
         function
   -mock
