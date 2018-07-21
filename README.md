@@ -14,7 +14,7 @@
 2. json数据写完，wiki, markdown文档自动生成
 2. json数据写完，单元测试用例自动生成
 3. 多人协作开发，都能保证主体代码规范一致
-4. 数据结构自动生成，节省大量编码成本
+4. 节省大量编码成本
 5. 统一化极简化的单元测试用例，可开放测试人员管理，打破开发到测试的技术墙
 
 ## usage
@@ -56,9 +56,9 @@ add
   "c": 3
 }
 ```
-执行：go run main.go -srv fastgo -func testFunc -mock true
+执行：go run main.go -srv fastgo -func testFunc
 
-将在$GOPATH/src下，fastgo项目的gendata目录，寻找testFunc文件作为初始数据,然后在handle目录，自动生成代码：
+将在$GOPATH/src下，fastgo项目的gendata目录，寻找testFunc文件作为初始数据，然后在handle目录，自动生成代码：
 ```
 //================= add =================
 type addReq struct {
@@ -74,19 +74,6 @@ type addResp struct {
 func add(req addReq) (*addResp, error) {
 	rst := &addResp{}
 
-	//mockdata
-	rst = mockadd(req)
-
 	return rst, nil
 }
-
-//mock add
-func mockadd(req addReq) *addResp {
-	rst := &addResp{}
-
-	rst.C = 3
-
-	return rst
-}
-
 ```
