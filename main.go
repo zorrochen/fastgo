@@ -36,25 +36,47 @@ func main() {
 	// 设置使用的CPU个数
 	log.Print("start...(CPU:%d)", runtime.NumCPU())
 
-	geninfo, _ := getGenInfo(*serviceName, *funcName)
-	if *mockFlag {
-		geninfo.mainFunc.FuncMockFlag = true
+	geninfo := &handleInfo{}
+	if *funcType == 1 {
+		geninfo, _ = getGenInfo(*serviceName, *funcName)
+		if *mockFlag {
+			geninfo.mainFunc.FuncMockFlag = true
+
+			mockData := genMock(geninfo.mainFunc.FuncName, geninfo.mainFunc.FuncRespJson)
+			mockData_formated_byte, _ := format.Source([]byte(mockData))
+			mockData = "\n" + string(mockData_formated_byte)
+			exportMock(mockData, *serviceName, *funcName, *funcType)
+		}
+	} else if *funcType == 2 {
+		geninfo, _ = getGenInfoForProxy(*serviceName, *funcName)
+	} else {
+		return
 	}
 
-	genrst := "package handle\n\n"
-	genrst += gen(geninfo.mainFunc)
+	genrst := ""
+	if *funcType == 1 {
+		genrst = "package handle\n\n"
+		genrst += gen(geninfo.mainFunc)
+		for _, v := range geninfo.subFuncList {
+			genrst += gen(v)
+		}
+	} else if *funcType == 2 {
+		genrst = "package proxy\n\n"
+		importStrFmt := `import(
+			"%s/proxy"
+			"encoding/json"
+			)`
+		genrst += fmt.Sprintf(importStrFmt, *serviceName)
+		genrst += "\n\n"
 
-	for _, v := range geninfo.subFuncList {
-		genrst += gen(v)
+		for _, v := range geninfo.subFuncList {
+			genrst += genProxy(v)
+		}
 	}
+
 	genrst_formated_byte, _ := format.Source([]byte(genrst))
 	genrst_formated := string(genrst_formated_byte)
 	export(genrst_formated, *serviceName, *funcName, *funcType)
-
-	mockData := genMock(geninfo.mainFunc.FuncName, geninfo.mainFunc.FuncRespJson)
-	mockData_formated_byte, _ := format.Source([]byte(mockData))
-	mockData = "\n" + string(mockData_formated_byte)
-	exportMock(mockData, *serviceName, *funcName, *funcType)
 
 	log.Print("server stoped")
 }
@@ -70,6 +92,7 @@ type funcinfo_t struct {
 	FuncReqJson  string
 	FuncRespJson string
 	FuncMockFlag bool
+	FuncReqUrl   string
 }
 
 func genMock(funcName, respJson string) string {
@@ -117,6 +140,41 @@ func gen(fi funcinfo_t) string {
 		genData["mockflag"] = "true"
 	}
 	t, _ := template.ParseFiles("./handle.tmpl")
+	b := &bytes.Buffer{}
+	t.Execute(b, genData)
+
+	retStr := exHeadStr + string(rstreq) + "\n\n" + string(rstresp) + "\n\n" + b.String() + "\n\n"
+	newStr, _ := format.Source([]byte(retStr))
+
+	retStr = string(newStr)
+
+	return retStr
+}
+
+func genProxy(fi funcinfo_t) string {
+	exHeadStr := fmt.Sprintf("//================= %s =================\n", fi.FuncName)
+
+	reqName := fi.FuncName + "Req"
+	respName := fi.FuncName + "Resp"
+
+	req := strings.NewReader(fi.FuncReqJson)
+	rstreq, err := gojson.Generate(req, gojson.ParseJson, reqName, "", []string{"json"}, false, true)
+	if err != nil {
+		return ""
+	}
+
+	resp := strings.NewReader(fi.FuncRespJson)
+	rstresp, err := gojson.Generate(resp, gojson.ParseJson, respName, "", []string{"json"}, false, true)
+	if err != nil {
+		fmt.Printf("err:%v", err)
+		return ""
+	}
+
+	genData := map[string]string{}
+	genData["funcname"] = fi.FuncName
+	genData["funcnote"] = fi.FuncNote
+	genData["reqpath"] = fi.FuncReqUrl
+	t, _ := template.ParseFiles("./proxy.tmpl")
 	b := &bytes.Buffer{}
 	t.Execute(b, genData)
 
@@ -255,6 +313,34 @@ func getGenInfo(module string, FuncName string) (*handleInfo, error) {
 		onefi.FuncReqJson = funcMap[onefi.FuncName].FuncReqJson
 		onefi.FuncRespJson = funcMap[onefi.FuncName].FuncRespJson
 		hi.subFuncList = append(hi.subFuncList, onefi)
+	}
+
+	return &hi, nil
+}
+
+func getGenInfoForProxy(module string, FuncName string) (*handleInfo, error) {
+	gopath := os.Getenv("GOPATH")
+	f := fmt.Sprintf("%s/src/%s/gendata/%s", gopath, module, FuncName)
+
+	info, err := readFile(f)
+	if err != nil {
+		return nil, err
+	}
+
+	var hi handleInfo
+	ss := strings.Split(string(info), "###")
+
+	for _, v := range ss {
+		onefuncinfo := strings.Split(v, "\n\n")
+		var fi funcinfo_t
+
+		sss := strings.Split(onefuncinfo[0], "#")
+		fi.FuncName = strings.TrimSpace(sss[0])
+		fi.FuncNote = strings.TrimSpace(sss[1])
+		fi.FuncReqUrl = strings.TrimSpace(sss[2])
+		fi.FuncReqJson = onefuncinfo[1]
+		fi.FuncRespJson = onefuncinfo[2]
+		hi.subFuncList = append(hi.subFuncList, fi)
 	}
 
 	return &hi, nil

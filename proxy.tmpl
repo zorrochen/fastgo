@@ -1,0 +1,17 @@
+//{{.funcnote}}
+func {{.funcname}}(req {{.funcname}}Req) (*{{.funcname}}Resp, error) {
+  rst := &{{.funcname}}Resp{}
+
+  url := fmt.Sprintf("http://%s{{.reqpath}}", ReqAddr)
+  httpcode, body := proxy.PostJson(url, req)
+  if httpcode != 200 {
+    return nil, errors.New("request failed.")
+  }
+
+  err := json.Unmarshal(body, rst)
+  if err != nil {
+    return nil, err
+  }
+
+  return rst, nil
+}
