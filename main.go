@@ -65,6 +65,7 @@ func main() {
 		importStrFmt := `import(
 			"%s/proxy"
 			"encoding/json"
+			"errors"
 			)`
 		genrst += fmt.Sprintf(importStrFmt, *serviceName)
 		genrst += "\n\n"
@@ -160,6 +161,7 @@ func genProxy(fi funcinfo_t) string {
 	req := strings.NewReader(fi.FuncReqJson)
 	rstreq, err := gojson.Generate(req, gojson.ParseJson, reqName, "", []string{"json"}, false, true)
 	if err != nil {
+		fmt.Printf("err:%v", err)
 		return ""
 	}
 
@@ -199,7 +201,7 @@ func export(code string, module string, FuncName string, funcType int) {
 		exportfile = fmt.Sprintf("%s/src/%s/handle/%s.go", gopath, module, FuncName)
 		os.MkdirAll(path.Dir(exportfile), os.ModePerm)
 	} else if funcType == FUNC_TYPE_PROXY {
-		exportfile = fmt.Sprintf("%s/src/%s/proxy/%s.go", gopath, module, FuncName)
+		exportfile = fmt.Sprintf("%s/src/%s/proxy/%s/%s.go", gopath, module, FuncName, FuncName)
 		os.MkdirAll(path.Dir(exportfile), os.ModePerm)
 	} else {
 		return
@@ -251,8 +253,7 @@ type UmlInfoResp struct {
 }
 
 func GetUmlInfo(module string, FuncName string) *UmlInfoResp {
-	gopath := os.Getenv("GOPATH")
-	f := fmt.Sprintf("%s/src/%s/gendata/%s.plantuml", gopath, module, FuncName)
+	f := fmt.Sprintf("./gendata/%s.plantuml", FuncName)
 	info, err := readFile(f)
 	if err != nil {
 		return nil
@@ -281,8 +282,7 @@ func GetUmlInfo(module string, FuncName string) *UmlInfoResp {
 }
 
 func getGenInfo(module string, FuncName string) (*handleInfo, error) {
-	gopath := os.Getenv("GOPATH")
-	f := fmt.Sprintf("%s/src/%s/gendata/%s", gopath, module, FuncName)
+	f := fmt.Sprintf("./gendata/%s", FuncName)
 
 	info, err := readFile(f)
 	if err != nil {
@@ -319,8 +319,7 @@ func getGenInfo(module string, FuncName string) (*handleInfo, error) {
 }
 
 func getGenInfoForProxy(module string, FuncName string) (*handleInfo, error) {
-	gopath := os.Getenv("GOPATH")
-	f := fmt.Sprintf("%s/src/%s/gendata/%s", gopath, module, FuncName)
+	f := fmt.Sprintf("./gendata/%s", FuncName)
 
 	info, err := readFile(f)
 	if err != nil {

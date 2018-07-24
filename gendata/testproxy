@@ -2,14 +2,74 @@
 Ccv2CircleInfo#圈子信息#/ccv2/circle/info
 
 {
-  "a":1,
-  "b":2
+	"count": 10,
+	"city": "深圳",
+	"page": 2
 }
 
 {
-  "c":3,
-  "d":4,
-  "f":["f1","f2"]
+	"error_code": 0,
+	"error_msg": "ok",
+	"data": {
+		"contents": [{
+			"content_type": 5,
+			"author": {
+				"aops_id": "5957206",
+				"entity_id": "9563643",
+				"nickname": "2629",
+				"avatar": "https://test-aopsmsg.pingan.com.cn:8020//group1/M00/02/AC/CjcgR1s0noaACTGeAAFOBvfI8YY875.jpg#w=1248;h=1248",
+				"is_friend": false,
+				"role": 3
+			},
+			"content_id": "q27ZwVnGgE7KgFzhdIO2L6BjY8K6xo",
+			"title": "哈土木哦咯out了",
+			"images": [{
+				"thumb_image": "https://test-aopsmsg.pingan.com.cn:8020/group1/M01/02/E1/CjcgR1tO55mAAY_EAAGPadhu3tE940_260x260.jpg#w=900;h=1350",
+				"origin_image": "https://test-aopsmsg.pingan.com.cn:8020/group1/M01/02/E1/CjcgR1tO55mAAY_EAAGPadhu3tE940.jpg#w=900;h=1350"
+			}],
+			"read_count": 1,
+			"comment_count": 0,
+			"like_count": 0,
+			"is_like": false,
+			"is_collect": false,
+			"content_url": "https://test-hcz-static.pingan.com.cn:1443/carCircle/posts/index.html?content_id=q27ZwVnGgE7KgFzhdIO2L6BjY8K6xo#/",
+			"sign": "活动",
+			"is_follow": false,
+			"show_type": 20,
+			"position": 0,
+			"create_time": 1531897754,
+			"video": {},
+			"question": {},
+			"post": {
+				"shared_id": "",
+				"shared_title": "",
+				"shared_image": "",
+				"shared_url": ""
+			},
+			"circle": {
+				"circle_id": 0,
+				"circle_title": "",
+				"icon": "",
+				"brief": "",
+				"follow_num": 0,
+				"is_follow": false
+			},
+			"topic": {
+				"topic_id": 0,
+				"topic_title": "",
+				"topic_recommend_circle_id": 0,
+				"topic_recommend_circle_title": "",
+				"topic_recommend_circle_icon": ""
+			},
+			"banner_circle": {
+				"is_show_title": false,
+				"is_show_more": false,
+				"more_url": "",
+				"title": "",
+				"circles": null
+			}
+		}]
+	}
 }
 
 ###
