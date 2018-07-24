@@ -2,9 +2,9 @@
 func {{.funcname}}(req {{.funcname}}Req) (*{{.funcname}}Resp, error) {
   rst := &{{.funcname}}Resp{}
 
-  url := "http://" + ReqAddr + "{{.reqpath}}"
+  url := fmt.Sprintf("http://%s{{.reqpath}}", ReqAddr)
   httpcode, body := proxy.PostJson(url, req)
-  if httpcode != 200 {
+  if httpcode != http.StatusOK {
     return nil, errors.New("request failed.")
   }
 

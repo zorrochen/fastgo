@@ -66,6 +66,7 @@ func main() {
 			"%s/proxy"
 			"encoding/json"
 			"errors"
+			"net/http"
 			)`
 		genrst += fmt.Sprintf(importStrFmt, *serviceName)
 		genrst += "\n\n"
