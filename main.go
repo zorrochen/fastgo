@@ -26,7 +26,7 @@ var (
 	serviceName = flag.String("srv", "", "service")
 	// packageName = flag.String("pkg", "", "package")
 	funcName = flag.String("func", "", "function")
-	funcType = flag.Int("type", 1, "function type, 1:handle 2:proxy")
+	funcType = flag.Int("type", 1, "function type")
 	mockFlag = flag.Bool("mock", false, "mock data switch")
 )
 
@@ -39,6 +39,8 @@ func main() {
 	geninfo := &handleInfo{}
 	if *funcType == 1 {
 		geninfo, _ = getGenInfo(*serviceName, *funcName)
+	} else if *funcType == 2 {
+		geninfo, _ = getGenInfoWithUML(*serviceName, *funcName)
 		if *mockFlag {
 			geninfo.mainFunc.FuncMockFlag = true
 
@@ -47,8 +49,8 @@ func main() {
 			mockData = "\n" + string(mockData_formated_byte)
 			exportMock(mockData, *serviceName, *funcName, *funcType)
 		}
-	} else if *funcType == 2 {
-		geninfo, _ = getGenInfoForProxy(*serviceName, *funcName)
+	} else if *funcType == 3 {
+		geninfo, _ = getGenInfo(*serviceName, *funcName)
 	} else {
 		return
 	}
@@ -56,17 +58,23 @@ func main() {
 	genrst := ""
 	if *funcType == 1 {
 		genrst = "package handle\n\n"
-		genrst += gen(geninfo.mainFunc)
 		for _, v := range geninfo.subFuncList {
 			genrst += gen(v)
 		}
 	} else if *funcType == 2 {
+		genrst = "package handle\n\n"
+		genrst += gen(geninfo.mainFunc)
+		for _, v := range geninfo.subFuncList {
+			genrst += gen(v)
+		}
+	} else if *funcType == 3 {
 		genrst = "package proxy\n\n"
 		importStrFmt := `import(
 			"%s/proxy"
 			"encoding/json"
 			"errors"
 			"net/http"
+			"fmt"
 			)`
 		genrst += fmt.Sprintf(importStrFmt, *serviceName)
 		genrst += "\n\n"
@@ -89,12 +97,13 @@ type handleInfo struct {
 }
 
 type funcinfo_t struct {
-	FuncName     string
-	FuncNote     string
-	FuncReqJson  string
-	FuncRespJson string
-	FuncMockFlag bool
-	FuncReqUrl   string
+	FuncName      string
+	FuncNote      string
+	FuncReqJson   string
+	FuncRespJson  string
+	FuncMockFlag  bool
+	FuncReqUrl    string
+	FuncReqMethod string
 }
 
 func genMock(funcName, respJson string) string {
@@ -177,6 +186,11 @@ func genProxy(fi funcinfo_t) string {
 	genData["funcname"] = fi.FuncName
 	genData["funcnote"] = fi.FuncNote
 	genData["reqpath"] = fi.FuncReqUrl
+	if fi.FuncReqMethod == "get" {
+		genData["methodget"] = "true"
+	} else if fi.FuncReqMethod == "post" {
+		genData["methodpost"] = "true"
+	}
 	t, _ := template.ParseFiles("./proxy.tmpl")
 	b := &bytes.Buffer{}
 	t.Execute(b, genData)
@@ -190,8 +204,9 @@ func genProxy(fi funcinfo_t) string {
 }
 
 const (
-	FUNC_TYPE_HANDLE = 1
-	FUNC_TYPE_PROXY  = 2
+	FUNC_TYPE_HANDLE     = 1
+	FUNC_TYPE_HANDLE_UML = 2
+	FUNC_TYPE_PROXY      = 3
 )
 
 func export(code string, module string, FuncName string, funcType int) {
@@ -282,7 +297,7 @@ func GetUmlInfo(module string, FuncName string) *UmlInfoResp {
 	return ret
 }
 
-func getGenInfo(module string, FuncName string) (*handleInfo, error) {
+func getGenInfoWithUML(module string, FuncName string) (*handleInfo, error) {
 	f := fmt.Sprintf("./gendata/%s", FuncName)
 
 	info, err := readFile(f)
@@ -319,7 +334,7 @@ func getGenInfo(module string, FuncName string) (*handleInfo, error) {
 	return &hi, nil
 }
 
-func getGenInfoForProxy(module string, FuncName string) (*handleInfo, error) {
+func getGenInfo(module string, FuncName string) (*handleInfo, error) {
 	f := fmt.Sprintf("./gendata/%s", FuncName)
 
 	info, err := readFile(f)
@@ -337,7 +352,8 @@ func getGenInfoForProxy(module string, FuncName string) (*handleInfo, error) {
 		sss := strings.Split(onefuncinfo[0], "#")
 		fi.FuncName = strings.TrimSpace(sss[0])
 		fi.FuncNote = strings.TrimSpace(sss[1])
-		fi.FuncReqUrl = strings.TrimSpace(sss[2])
+		fi.FuncReqMethod = strings.TrimSpace(sss[2])
+		fi.FuncReqUrl = strings.TrimSpace(sss[3])
 		fi.FuncReqJson = onefuncinfo[1]
 		fi.FuncRespJson = onefuncinfo[2]
 		hi.subFuncList = append(hi.subFuncList, fi)

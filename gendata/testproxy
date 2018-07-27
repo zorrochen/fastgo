@@ -1,5 +1,5 @@
 
-Ccv2CircleInfo#圈子信息#/ccv2/circle/info
+Ccv2CircleInfo#圈子信息#get#/ccv2/circle/info
 
 {
 	"count": 10,
@@ -73,7 +73,21 @@ Ccv2CircleInfo#圈子信息#/ccv2/circle/info
 }
 
 ###
-circleBaseInfo#圈子基础信息#/ccv2/circle/baseinfo
+circleBaseInfo#圈子基础信息#post#/ccv2/circle/baseinfo
+
+{
+  "srvName":"",
+  "fileLine":"",
+  "content": ""
+}
+
+{
+  "err_code":"",
+  "err_msg":""
+}
+
+###
+mycircles#我的圈子信息#get#/ccv2/circle/mycircles
 
 {
   "a":1,
@@ -87,21 +101,7 @@ circleBaseInfo#圈子基础信息#/ccv2/circle/baseinfo
 }
 
 ###
-mycircles#我的圈子信息#/ccv2/circle/mycircles
-
-{
-  "a":1,
-  "b":2
-}
-
-{
-  "c":3,
-  "d":4,
-  "f":["f1","f2"]
-}
-
-###
-circleAllInfo#信息组装#/ccv2/circle/allinfo
+circleAllInfo#信息组装#get#/ccv2/circle/allinfo
 
 {
   "a":1,
