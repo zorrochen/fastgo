@@ -223,7 +223,14 @@ func export(code string, module string, FuncName string, funcType int) {
 		return
 	}
 
+	exist, _ := PathExists(exportfile)
+	// 已存在，不写入
+	if exist {
+		fmt.Printf("allready exist.\n")
+		return
+	}
 	writeFile(exportfile, code)
+	return
 }
 
 func exportMock(code string, module string, FuncName string, funcType int) {
