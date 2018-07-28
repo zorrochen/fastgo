@@ -2,10 +2,12 @@
 func {{.funcname}}(req {{.funcname}}Req) (*{{.funcname}}Resp, error) {
   rst := &{{.funcname}}Resp{}
 
-  {{if .methodget}}
+  //request
+  {{- if .methodget}}
   url := fmt.Sprintf("http://%s{{.reqpath}}?%s", ReqAddr, proxy.Struct2Querystr(req))
   httpcode, body := proxy.Get(url)
-  {{else if .methodpost}}
+  {{- end}}
+  {{- if .methodpost}}
   url := fmt.Sprintf("http://%s{{.reqpath}}", ReqAddr)
   httpcode, body := proxy.PostJson(url, req)
   {{- end}}
@@ -13,6 +15,7 @@ func {{.funcname}}(req {{.funcname}}Req) (*{{.funcname}}Resp, error) {
     return nil, errors.New("request failed.")
   }
 
+  //response
   err := json.Unmarshal(body, rst)
   if err != nil {
     return nil, err
