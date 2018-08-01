@@ -226,7 +226,7 @@ func export(code string, module string, FuncName string, funcType int) {
 	exist, _ := PathExists(exportfile)
 	// 已存在，不写入
 	if exist {
-		fmt.Printf("allready exist.\n")
+		fmt.Printf("already exist.\n")
 		return
 	}
 	writeFile(exportfile, code)
