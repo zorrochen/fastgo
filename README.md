@@ -36,6 +36,8 @@ fastgo:
 ## 举例
 >客户端调用server, 获取两个包裹， 服务端分别获取两个包裹，组装后返回
 
+![avatar](https://pan.baidu.com/s/1MTEGpEsvEDk_lWNcoftzDQ)
+
 **假设：filepath = ./getTwoPacks.dat, 对应的数据:**
 ```
 @startuml
