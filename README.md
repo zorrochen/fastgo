@@ -21,8 +21,7 @@
 1. 结构体元素的参数注释，目前没有好的方案来解决
 
 ## usage
-
-参数说明：func指函数名；mock判断是否生成mock数据；srv指定项目; type指定是处理函数还是第三方请求函数
+参数说明：
 ```
 fastgo:
   -filepath string
