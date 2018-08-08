@@ -1,8 +1,0 @@
-//{{.funcnote}}
-func {{.funcname}}(req {{.funcname}}Req) ({{.funcname}}Resp, error) {
-  resp := {{.funcname}}Resp{}
-  {{- if .body}}
-    {{.body}}
-  {{- end}}
-  return resp, nil
-}

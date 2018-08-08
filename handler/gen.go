@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"bytes"
@@ -15,6 +15,71 @@ type GenMode interface {
 	// Export() error
 }
 
+//===================== simpleMode =====================
+type SimpleMode struct {
+	FuncList []baseFunc
+}
+
+func (m *SimpleMode) Gen() (string, error) {
+	rst := ""
+	for _, v := range m.FuncList {
+		rst += GenOneFunc(v)
+	}
+	return rst, nil
+}
+
+//===================== handleMode =====================
+type HandlerMode struct {
+	MainFunc    baseFunc
+	SubFuncList []baseFunc
+	//MockFlag  bool
+}
+
+func (m *HandlerMode) Gen() (string, error) {
+	genData := map[string][]string{}
+
+	genData["innerDataDeclareCode"] = []string{m.genInnerDataStruct()}
+	m.MainFunc.Body = m.genBody()
+	genData["mainFuncCode"] = []string{GenOneFunc(m.MainFunc)}
+
+	subFuncCodeList := []string{}
+	for _, v := range m.SubFuncList {
+		subFuncCodeList = append(subFuncCodeList, GenOneFunc(v))
+	}
+	genData["subFuncCodeList"] = subFuncCodeList
+
+	reqMakerCodeList := []string{}
+	for _, v := range m.SubFuncList {
+		reqMakerCodeList = append(reqMakerCodeList, genReqMaker(m.MainFunc.FuncName, v.FuncName))
+	}
+	genData["reqMakerCodeList"] = reqMakerCodeList
+	genData["makeResponse"] = []string{genMakeResp(m.MainFunc.FuncName)}
+
+	t, err := template.New("").Parse(TEMP_HANDLER)
+	if err != nil {
+		fmt.Printf("err:%v\n", err)
+		return "", err
+	}
+	b := &bytes.Buffer{}
+	t.Execute(b, genData)
+	return b.String(), nil
+}
+
+//===================== proxyMode =====================
+type ProxyMode struct {
+	FuncList []ProxyFunc
+}
+
+func (m *ProxyMode) Gen() (string, error) {
+	rst := ""
+	for _, v := range m.FuncList {
+		v.Body = v.genBody()
+		rst += GenOneFunc(v.baseFunc)
+	}
+	return rst, nil
+}
+
+//================================================
 type baseFunc struct {
 	// FuncOwner    string
 	FuncName     string
@@ -48,7 +113,7 @@ func GenOneFunc(fi baseFunc) string {
 	genData["funcname"] = fi.FuncName
 	genData["funcnote"] = fi.FuncNote
 	genData["body"] = fi.Body
-	t, err := template.ParseFiles("./func.tmpl")
+	t, err := template.New("").Parse(TEMP_FUNC)
 	if err != nil {
 		fmt.Printf("err:%v\n", err)
 		return ""
@@ -67,11 +132,12 @@ func GenOneFunc(fi baseFunc) string {
 	return retStr
 }
 
-func genInvokedCode(fi baseFunc) string {
+func genInvokedCode(mainFunc string, fi baseFunc) string {
 	genData := map[string]string{}
+	genData["mainFunc"] = mainFunc
 	genData["funcname"] = fi.FuncName
 	genData["funcnote"] = fi.FuncNote
-	t, err := template.ParseFiles("./handleBody.tmpl")
+	t, err := template.New("").Parse(TEMP_HANDLER_BODY)
 	if err != nil {
 		fmt.Printf("err:%v\n", err)
 		return ""
@@ -85,7 +151,7 @@ func genInnerDataCode(mainFuncName string, subFuncList []string) string {
 	genData := map[string][]string{}
 	genData["mainFunc"] = []string{mainFuncName}
 	genData["subFuncList"] = subFuncList
-	t, err := template.ParseFiles("./innerDataInit.tmpl")
+	t, err := template.New("").Parse(TEMP_HANDLER_INNER_DATA_INIT)
 	if err != nil {
 		fmt.Printf("err:%v\n", err)
 		return ""
@@ -98,7 +164,7 @@ func genInnerDataCode(mainFuncName string, subFuncList []string) string {
 func genInnerDataDefineCode(mainFuncName string) string {
 	genData := map[string]string{}
 	genData["mainFunc"] = mainFuncName
-	t, err := template.ParseFiles("./innerDataDefine.tmpl")
+	t, err := template.New("").Parse(TEMP_HANDLER_INNER_DATA_DEFINE)
 	if err != nil {
 		fmt.Printf("err:%v\n", err)
 		return ""
@@ -112,7 +178,7 @@ func genReqMaker(mainFunc string, subFunc string) string {
 	genData := map[string]string{}
 	genData["mainFunc"] = mainFunc
 	genData["funcname"] = subFunc
-	t, err := template.ParseFiles("./reqmaker.tmpl")
+	t, err := template.New("").Parse(TEMP_REQ_MAKER)
 	if err != nil {
 		fmt.Printf("err:%v\n", err)
 		return ""
@@ -125,7 +191,7 @@ func genReqMaker(mainFunc string, subFunc string) string {
 func genMakeResp(mainFunc string) string {
 	genData := map[string]string{}
 	genData["mainFunc"] = mainFunc
-	t, err := template.ParseFiles("./makeResp.tmpl")
+	t, err := template.New("").Parse(TEMP_HANDLER_MAKE_RESP)
 	if err != nil {
 		fmt.Printf("err:%v\n", err)
 		return ""
@@ -133,54 +199,6 @@ func genMakeResp(mainFunc string) string {
 	b := &bytes.Buffer{}
 	t.Execute(b, genData)
 	return b.String()
-}
-
-type SimpleMode struct {
-	FuncList []baseFunc
-}
-
-func (m *SimpleMode) Gen() (string, error) {
-	rst := ""
-	for _, v := range m.FuncList {
-		rst += GenOneFunc(v)
-	}
-	return rst, nil
-}
-
-type HandlerMode struct {
-	MainFunc    baseFunc
-	SubFuncList []baseFunc
-	//MockFlag  bool
-}
-
-func (m *HandlerMode) Gen() (string, error) {
-	genData := map[string][]string{}
-
-	genData["innerDataDeclareCode"] = []string{m.genInnerDataStruct()}
-	m.MainFunc.Body = m.genBody()
-	genData["mainFuncCode"] = []string{GenOneFunc(m.MainFunc)}
-
-	subFuncCodeList := []string{}
-	for _, v := range m.SubFuncList {
-		subFuncCodeList = append(subFuncCodeList, GenOneFunc(v))
-	}
-	genData["subFuncCodeList"] = subFuncCodeList
-
-	reqMakerCodeList := []string{}
-	for _, v := range m.SubFuncList {
-		reqMakerCodeList = append(reqMakerCodeList, genReqMaker(m.MainFunc.FuncName, v.FuncName))
-	}
-	genData["reqMakerCodeList"] = reqMakerCodeList
-	genData["makeResponse"] = []string{genMakeResp(m.MainFunc.FuncName)}
-
-	t, err := template.ParseFiles("./handleFormat.tmpl")
-	if err != nil {
-		fmt.Printf("err:%v\n", err)
-		return "", err
-	}
-	b := &bytes.Buffer{}
-	t.Execute(b, genData)
-	return b.String(), nil
 }
 
 func (m *HandlerMode) genInnerDataStruct() string {
@@ -199,7 +217,7 @@ func (m *HandlerMode) genBody() string {
 	rst += genInnerDataDefineCode(m.MainFunc.FuncName)
 	rst += "\n\n"
 	for _, v := range m.SubFuncList {
-		rst += genInvokedCode(v)
+		rst += genInvokedCode(m.MainFunc.FuncName, v)
 		rst += "\n\n"
 	}
 	rst += "//组装返回数据\n"
@@ -213,19 +231,6 @@ type ProxyFunc struct {
 	FuncReqMethod string
 }
 
-type ProxyMode struct {
-	FuncList []ProxyFunc
-}
-
-func (m *ProxyMode) Gen() (string, error) {
-	rst := ""
-	for _, v := range m.FuncList {
-		v.Body = v.genBody()
-		rst += GenOneFunc(v.baseFunc)
-	}
-	return rst, nil
-}
-
 func (fi *ProxyFunc) genBody() string {
 	rst := ""
 
@@ -236,10 +241,29 @@ func (fi *ProxyFunc) genBody() string {
 	} else if fi.FuncReqMethod == "post" {
 		genData["methodpost"] = "true"
 	}
-	t, _ := template.ParseFiles("./proxy.tmpl")
+	t, _ := template.New("").Parse(TEMP_PROXY)
 	b := &bytes.Buffer{}
 	t.Execute(b, genData)
 
 	rst += b.String()
 	return rst
 }
+
+// func genMock(funcName, respJson string) string {
+// 	genData := map[string]string{}
+//
+// 	genData["funcname"] = funcName
+// 	data := map[string]interface{}{}
+// 	err := json.Unmarshal([]byte(respJson), &data)
+// 	if err != nil {
+// 		fmt.Printf("json error\n")
+// 		return ""
+// 	}
+//
+// 	genData["body"] = ToAssignExp("", data)
+// 	t, _ := template.ParseFiles("./mock.tmpl")
+// 	b2 := &bytes.Buffer{}
+// 	t.Execute(b2, genData)
+//
+// 	return b2.String()
+// }
