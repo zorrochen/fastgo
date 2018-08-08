@@ -17,7 +17,7 @@ var (
 func main() {
 	flag.Parse()
 
-	// 设置使用的CPU个数
+	// 启动打印(附:cpu个数)
 	log.Printf("start...(CPU:%d)", runtime.NumCPU())
 
 	info, err := ReadFile(*filepath)

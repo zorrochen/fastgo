@@ -33,8 +33,7 @@ fastgo:
 
 举例： 客户端调用server, 获取两个包裹， 服务端分别获取两个包裹，组装后返回
 
-假设：filepath = ./getTwoPacks.dat
-getTwoPacks.dat对应的数据：
+假设：filepath = ./getTwoPacks.dat, 对应的数据：
 ```
 @startuml
 title MyPacks(获取我的包裹)
@@ -90,6 +89,12 @@ pack2
   }
 }
 ```
+
+解析规则说明：
+1. 含有“@startuml”认为是handler模式，结合uml+json生成
+2. 使用“###”分割各个函数元数据，假设分割后为splitlist
+3. 分割后,splitlist[0]是uml数据，其他为函数元数据
+4. uml数据解析后，得到主函数和子函数相关信息
 
 执行：./fastgo -srv test -filepath ./getTwoPacks.dat
 
