@@ -36,7 +36,7 @@ fastgo:
 ## 举例
 >客户端调用server, 获取两个包裹， 服务端分别获取两个包裹，组装后返回
 
-![avatar](https://pan.baidu.com/s/1MTEGpEsvEDk_lWNcoftzDQ)
+![avatar](http://m.qpic.cn/psb?/d01f984e-b75b-4275-94f9-b4acaf97fad7/NdGtqT69nmNHzaJPtTEaQQ6yZNYDLr*v3yFuKKDSn4o!/b/dDABAAAAAAAA&bo=2QDRAAAAAAADFzo!&rf=viewer_4)
 
 **假设：filepath = ./getTwoPacks.dat, 对应的数据:**
 ```
