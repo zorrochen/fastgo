@@ -102,7 +102,7 @@ pack2
 **执行:**
 >./fastgo -srv test -filepath ./getTwoPacks.dat
 
-**将在$GOPATH/src下，test项目下的export目录，自动生成代码:**
+**将在$GOPATH/src下，test项目下export目录，生成代码:**
 ```golang
 package handler
 
