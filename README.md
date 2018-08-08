@@ -30,6 +30,9 @@ fastgo:
         service, 默认("tmp")
 ```
 
+## 依赖
+* [github.com/ChimeraCoder/gojson](http://github.com/ChimeraCoder/gojson)
+
 ## 举例
 >客户端调用server, 获取两个包裹， 服务端分别获取两个包裹，组装后返回
 
