@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/ChimeraCoder/gojson"
 	"go/format"
 	"io/ioutil"
 	"log"
@@ -34,59 +33,22 @@ func main() {
 	flag.Parse()
 
 	// 设置使用的CPU个数
-	log.Print("start...(CPU:%d)", runtime.NumCPU())
+	log.Printf("start...(CPU:%d)", runtime.NumCPU())
 
-	geninfo := &handleInfo{}
+	var m GenMode
 	if *funcType == 1 {
-		geninfo, _ = getGenInfo(*serviceName, *funcName)
+		m, _ = SimpleGenMode(*serviceName, *funcName)
 	} else if *funcType == 2 {
-		geninfo, _ = getGenInfoWithUML(*serviceName, *funcName)
-		if *mockFlag {
-			geninfo.mainFunc.FuncMockFlag = true
-
-			mockData := genMock(geninfo.mainFunc.FuncName, geninfo.mainFunc.FuncRespJson)
-			mockData_formated_byte, _ := format.Source([]byte(mockData))
-			mockData = "\n" + string(mockData_formated_byte)
-			exportMock(mockData, *serviceName, *funcName, *funcType)
-		}
+		m, _ = HandlerGenMode(*serviceName, *funcName)
 	} else if *funcType == 3 {
-		geninfo, _ = getGenInfo(*serviceName, *funcName)
+		m, _ = ProxyGenMode(*serviceName, *funcName)
 	} else {
 		return
 	}
 
-	genrst := ""
-	if *funcType == 1 {
-		genrst = "package handle\n\n"
-		for _, v := range geninfo.subFuncList {
-			genrst += gen(v)
-		}
-	} else if *funcType == 2 {
-		genrst = "package handle\n\n"
-		genrst += gen(geninfo.mainFunc)
-		for _, v := range geninfo.subFuncList {
-			genrst += gen(v)
-		}
-	} else if *funcType == 3 {
-		genrst = "package proxy\n\n"
-		importStrFmt := `import(
-			"%s/proxy"
-			"encoding/json"
-			"errors"
-			"net/http"
-			"fmt"
-			)`
-		genrst += fmt.Sprintf(importStrFmt, *serviceName)
-		genrst += "\n\n"
-
-		for _, v := range geninfo.subFuncList {
-			genrst += genProxy(v)
-		}
-	}
-
-	genrst_formated_byte, _ := format.Source([]byte(genrst))
-	genrst_formated := string(genrst_formated_byte)
-	export(genrst_formated, *serviceName, *funcName, *funcType)
+	genRst, _ := m.Gen()
+	genRstFormat, _ := format.Source([]byte(genRst))
+	export(string(genRstFormat), *serviceName, *funcName, *funcType)
 
 	log.Print("server stoped")
 }
@@ -125,96 +87,21 @@ func genMock(funcName, respJson string) string {
 	return b2.String()
 }
 
-func gen(fi funcinfo_t) string {
-	exHeadStr := fmt.Sprintf("//================= %s =================\n", fi.FuncName)
-
-	reqName := fi.FuncName + "Req"
-	respName := fi.FuncName + "Resp"
-
-	req := strings.NewReader(fi.FuncReqJson)
-	rstreq, err := gojson.Generate(req, gojson.ParseJson, reqName, "", []string{"json"}, false, true)
-	if err != nil {
-		return ""
-	}
-
-	resp := strings.NewReader(fi.FuncRespJson)
-	rstresp, err := gojson.Generate(resp, gojson.ParseJson, respName, "", []string{"json"}, false, true)
-	if err != nil {
-		fmt.Printf("err:%v", err)
-		return ""
-	}
-
-	genData := map[string]string{}
-	genData["funcname"] = fi.FuncName
-	genData["funcnote"] = fi.FuncNote
-	if fi.FuncMockFlag {
-		genData["mockflag"] = "true"
-	}
-	t, _ := template.ParseFiles("./handle.tmpl")
-	b := &bytes.Buffer{}
-	t.Execute(b, genData)
-
-	retStr := exHeadStr + string(rstreq) + "\n\n" + string(rstresp) + "\n\n" + b.String() + "\n\n"
-	newStr, _ := format.Source([]byte(retStr))
-
-	retStr = string(newStr)
-
-	return retStr
-}
-
-func genProxy(fi funcinfo_t) string {
-	exHeadStr := fmt.Sprintf("//================= %s =================\n", fi.FuncName)
-
-	reqName := fi.FuncName + "Req"
-	respName := fi.FuncName + "Resp"
-
-	req := strings.NewReader(fi.FuncReqJson)
-	rstreq, err := gojson.Generate(req, gojson.ParseJson, reqName, "", []string{"json"}, false, true)
-	if err != nil {
-		fmt.Printf("err:%v", err)
-		return ""
-	}
-
-	resp := strings.NewReader(fi.FuncRespJson)
-	rstresp, err := gojson.Generate(resp, gojson.ParseJson, respName, "", []string{"json"}, false, true)
-	if err != nil {
-		fmt.Printf("err:%v", err)
-		return ""
-	}
-
-	genData := map[string]string{}
-	genData["funcname"] = fi.FuncName
-	genData["funcnote"] = fi.FuncNote
-	genData["reqpath"] = fi.FuncReqUrl
-	if fi.FuncReqMethod == "get" {
-		genData["methodget"] = "true"
-	} else if fi.FuncReqMethod == "post" {
-		genData["methodpost"] = "true"
-	}
-	t, _ := template.ParseFiles("./proxy.tmpl")
-	b := &bytes.Buffer{}
-	t.Execute(b, genData)
-
-	retStr := exHeadStr + string(rstreq) + "\n\n" + string(rstresp) + "\n\n" + b.String() + "\n\n"
-	newStr, _ := format.Source([]byte(retStr))
-
-	retStr = string(newStr)
-
-	return retStr
-}
-
 const (
-	FUNC_TYPE_HANDLE     = 1
-	FUNC_TYPE_HANDLE_UML = 2
-	FUNC_TYPE_PROXY      = 3
+	FUNC_TYPE_SIMPLE = 1
+	FUNC_TYPE_HANDLE = 2
+	FUNC_TYPE_PROXY  = 3
 )
 
 func export(code string, module string, FuncName string, funcType int) {
 	gopath := os.Getenv("GOPATH")
 
 	exportfile := ""
-	if funcType == FUNC_TYPE_HANDLE {
-		exportfile = fmt.Sprintf("%s/src/%s/handle/%s.go", gopath, module, FuncName)
+	if funcType == FUNC_TYPE_SIMPLE {
+		exportfile = fmt.Sprintf("%s/src/%s/handler/%s.go", gopath, module, FuncName)
+		os.MkdirAll(path.Dir(exportfile), os.ModePerm)
+	} else if funcType == FUNC_TYPE_HANDLE {
+		exportfile = fmt.Sprintf("%s/src/%s/handler/%s.go", gopath, module, FuncName)
 		os.MkdirAll(path.Dir(exportfile), os.ModePerm)
 	} else if funcType == FUNC_TYPE_PROXY {
 		exportfile = fmt.Sprintf("%s/src/%s/proxy/%s/%s.go", gopath, module, FuncName, FuncName)
@@ -304,7 +191,33 @@ func GetUmlInfo(module string, FuncName string) *UmlInfoResp {
 	return ret
 }
 
-func getGenInfoWithUML(module string, FuncName string) (*handleInfo, error) {
+func SimpleGenMode(module string, FuncName string) (GenMode, error) {
+	f := fmt.Sprintf("./gendata/%s", FuncName)
+
+	info, err := readFile(f)
+	if err != nil {
+		return nil, err
+	}
+
+	m := SimpleMode{}
+	ss := strings.Split(string(info), "###")
+
+	for _, v := range ss {
+		onefuncinfo := strings.Split(v, "\n\n")
+		var fi baseFunc
+
+		sss := strings.Split(onefuncinfo[0], "#")
+		fi.FuncName = strings.TrimSpace(sss[0])
+		fi.FuncNote = strings.TrimSpace(sss[1])
+		fi.FuncReqJson = onefuncinfo[1]
+		fi.FuncRespJson = onefuncinfo[2]
+		m.FuncList = append(m.FuncList, fi)
+	}
+
+	return &m, nil
+}
+
+func HandlerGenMode(module string, FuncName string) (GenMode, error) {
 	f := fmt.Sprintf("./gendata/%s", FuncName)
 
 	info, err := readFile(f)
@@ -324,24 +237,24 @@ func getGenInfoWithUML(module string, FuncName string) (*handleInfo, error) {
 	}
 
 	umlinfo := GetUmlInfo(module, FuncName)
-	var hi handleInfo
-	hi.mainFunc.FuncName = umlinfo.mainFunc.FuncName
-	hi.mainFunc.FuncNote = umlinfo.mainFunc.FuncNote
-	hi.mainFunc.FuncReqJson = funcMap[hi.mainFunc.FuncName].FuncReqJson
-	hi.mainFunc.FuncRespJson = funcMap[hi.mainFunc.FuncName].FuncRespJson
+	hm := HandlerMode{}
+	hm.MainFunc.FuncName = umlinfo.mainFunc.FuncName
+	hm.MainFunc.FuncNote = umlinfo.mainFunc.FuncNote
+	hm.MainFunc.FuncReqJson = funcMap[hm.MainFunc.FuncName].FuncReqJson
+	hm.MainFunc.FuncRespJson = funcMap[hm.MainFunc.FuncName].FuncRespJson
 	for _, v := range umlinfo.subFuncList {
-		onefi := funcinfo_t{}
+		onefi := baseFunc{}
 		onefi.FuncName = v.FuncName
 		onefi.FuncNote = v.FuncNote
 		onefi.FuncReqJson = funcMap[onefi.FuncName].FuncReqJson
 		onefi.FuncRespJson = funcMap[onefi.FuncName].FuncRespJson
-		hi.subFuncList = append(hi.subFuncList, onefi)
+		hm.SubFuncList = append(hm.SubFuncList, onefi)
 	}
 
-	return &hi, nil
+	return &hm, nil
 }
 
-func getGenInfo(module string, FuncName string) (*handleInfo, error) {
+func ProxyGenMode(module string, FuncName string) (GenMode, error) {
 	f := fmt.Sprintf("./gendata/%s", FuncName)
 
 	info, err := readFile(f)
@@ -349,12 +262,12 @@ func getGenInfo(module string, FuncName string) (*handleInfo, error) {
 		return nil, err
 	}
 
-	var hi handleInfo
+	m := ProxyMode{}
 	ss := strings.Split(string(info), "###")
 
 	for _, v := range ss {
 		onefuncinfo := strings.Split(v, "\n\n")
-		var fi funcinfo_t
+		var fi ProxyFunc
 
 		sss := strings.Split(onefuncinfo[0], "#")
 		fi.FuncName = strings.TrimSpace(sss[0])
@@ -363,10 +276,10 @@ func getGenInfo(module string, FuncName string) (*handleInfo, error) {
 		fi.FuncReqUrl = strings.TrimSpace(sss[3])
 		fi.FuncReqJson = onefuncinfo[1]
 		fi.FuncRespJson = onefuncinfo[2]
-		hi.subFuncList = append(hi.subFuncList, fi)
+		m.FuncList = append(m.FuncList, fi)
 	}
 
-	return &hi, nil
+	return &m, nil
 }
 
 func readFile(fileName string) ([]byte, error) {

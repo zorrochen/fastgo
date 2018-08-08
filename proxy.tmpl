@@ -1,6 +1,3 @@
-//{{.funcnote}}
-func {{.funcname}}(req {{.funcname}}Req) (*{{.funcname}}Resp, error) {
-  rst := &{{.funcname}}Resp{}
 
   //request
   {{- if .methodget}}
@@ -20,6 +17,3 @@ func {{.funcname}}(req {{.funcname}}Req) (*{{.funcname}}Resp, error) {
   if err != nil {
     return nil, err
   }
-
-  return rst, nil
-}

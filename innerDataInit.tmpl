@@ -1,0 +1,10 @@
+type innerData{{- range .mainFunc}}{{.}}{{- end}} struct {
+  {{- range .mainFunc}}
+  req {{.}}Req
+  resp {{.}}Resp
+  {{- end}}
+  {{- range .subFuncList}}
+  req{{.}} {{.}}Req
+  resp{{.}} {{.}}Resp
+  {{- end}}
+}

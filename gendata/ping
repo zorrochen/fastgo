@@ -1,0 +1,9 @@
+ping#ping测试##
+
+{
+}
+
+{
+	"error_code": 0,
+	"error_msg": "ok"
+}

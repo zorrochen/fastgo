@@ -1,20 +1,42 @@
-add
+MyPacks
 
 {
-  "a": 1,
-  "b": 2
+  "uid": "001"
 }
 
 {
 	"error_code": 0,
 	"error_msg": "ok",
 	"data": {
-		"contents": [{
-			"content_type": 5,
-			"author": {
-				"aops_id": "5957206",
-				"entity_id": "9563643"
-			}}
-			]
+		"pack1": "1",
+  	"pack2": "2"
 	}
+}
+###
+pack1
+
+{
+  "uid": "001"
+}
+
+{
+	"error_code": 0,
+	"error_msg": "ok",
+	"data": {
+		"pack1": "1"
+	}
+}
+###
+pack2
+
+{
+  "uid": "001"
+}
+
+{
+	"error_code": 0,
+	"error_msg": "ok",
+	"data": {
+		"pack2": "2"
+  }
 }
