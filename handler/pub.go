@@ -8,6 +8,7 @@ import (
 	"math"
 	"os"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode"
@@ -280,4 +281,15 @@ func stringifyFirstChar(str string) string {
 	}
 
 	return intToWordMap[i] + "_" + str[1:]
+}
+
+func parseRegexp(s string) (*regexp.Regexp, error) {
+	if s == "" {
+		return nil, nil
+	}
+	re, err := regexp.Compile(s)
+	if err != nil {
+		return nil, err
+	}
+	return re, nil
 }

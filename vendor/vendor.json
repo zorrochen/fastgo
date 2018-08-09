@@ -1,0 +1,74 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "TCqUvqUnJ+n+/YlK+WMAbTb9ft8=",
+			"path": "github.com/ChimeraCoder/gojson",
+			"revision": "2f705cd6a603549ad1792fc0b1f9e17db6959071",
+			"revisionTime": "2018-01-30T05:56:29Z"
+		},
+		{
+			"checksumSHA1": "/zG89Iu9CNYwnQon5PwatjT0EXw=",
+			"path": "github.com/cweill/gotests",
+			"revision": "651680c71b22b1164ee36398b009b2da5839e694",
+			"revisionTime": "2017-11-20T04:41:48Z"
+		},
+		{
+			"checksumSHA1": "dEXgpO5xo2bRo2GtbARt234oWTU=",
+			"path": "github.com/cweill/gotests/internal/goparser",
+			"revision": "651680c71b22b1164ee36398b009b2da5839e694",
+			"revisionTime": "2017-11-20T04:41:48Z"
+		},
+		{
+			"checksumSHA1": "WBKSt2QIRyxqEAM+t2DEQM1Kzos=",
+			"path": "github.com/cweill/gotests/internal/input",
+			"revision": "651680c71b22b1164ee36398b009b2da5839e694",
+			"revisionTime": "2017-11-20T04:41:48Z"
+		},
+		{
+			"checksumSHA1": "ZpHD+B++r92drdOg9zdyphE+xKc=",
+			"path": "github.com/cweill/gotests/internal/models",
+			"revision": "651680c71b22b1164ee36398b009b2da5839e694",
+			"revisionTime": "2017-11-20T04:41:48Z"
+		},
+		{
+			"checksumSHA1": "yYlBXQAvPYALG2fVopV9gcoYulc=",
+			"path": "github.com/cweill/gotests/internal/output",
+			"revision": "651680c71b22b1164ee36398b009b2da5839e694",
+			"revisionTime": "2017-11-20T04:41:48Z"
+		},
+		{
+			"checksumSHA1": "h0M+uf8DWs+WEH4MvIynPjJ1Fp0=",
+			"path": "github.com/cweill/gotests/internal/render",
+			"revision": "651680c71b22b1164ee36398b009b2da5839e694",
+			"revisionTime": "2017-11-20T04:41:48Z"
+		},
+		{
+			"checksumSHA1": "8stdpozwmiDCmQ6J7BdP58v2fug=",
+			"path": "github.com/cweill/gotests/internal/render/bindata",
+			"revision": "651680c71b22b1164ee36398b009b2da5839e694",
+			"revisionTime": "2017-11-20T04:41:48Z"
+		},
+		{
+			"checksumSHA1": "AsL/fTkY1p1HNVSikhVZJd++Nrk=",
+			"path": "golang.org/x/tools/go/ast/astutil",
+			"revision": "25101aadb97aa42907eee6a238d6d26a6cb3c756",
+			"revisionTime": "2018-01-25T02:48:19Z"
+		},
+		{
+			"checksumSHA1": "GqWPrTiimuJ9Z1Tbrc4oWupdr8Y=",
+			"path": "golang.org/x/tools/imports",
+			"revision": "25101aadb97aa42907eee6a238d6d26a6cb3c756",
+			"revisionTime": "2018-01-25T02:48:19Z"
+		},
+		{
+			"checksumSHA1": "dJsLaltE9R6pnm5lJtC1Ne7UGoQ=",
+			"origin": "github.com/ChimeraCoder/gojson/vendor/gopkg.in/yaml.v2",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "2f705cd6a603549ad1792fc0b1f9e17db6959071",
+			"revisionTime": "2018-01-30T05:56:29Z"
+		}
+	],
+	"rootPath": "fastgo"
+}

@@ -27,6 +27,12 @@ func Export(code string, module string, FuncName string) {
 	return
 }
 
+func ExportTests(module string, FuncName string) {
+	gopath := os.Getenv("GOPATH")
+	exportfile := fmt.Sprintf("%s/src/%s/export/%s.go", gopath, module, FuncName)
+	gotestsRun(exportfile)
+}
+
 // func Export(code string, module string, FuncName string, funcType int) {
 // 	gopath := os.Getenv("GOPATH")
 //

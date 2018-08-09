@@ -102,9 +102,9 @@ pack2
 4. uml数据解析后，得到主函数和子函数相关信息
 
 **执行:**
->./fastgo -srv test -filepath ./getTwoPacks.dat
+>./fastgo -srv test -filepath ./getTwoPacks.dat -t
 
-**将在$GOPATH/src下，test项目下export目录，生成代码:**
+**将在$GOPATH/src下，test项目下export目录，生成代码getTwoPacks.go文件:**
 ```golang
 package handler
 
@@ -209,5 +209,87 @@ func (*innerDataMyPacks) makepack2Req() pack2Req {
 //组装返回数据
 func (*innerDataMyPacks) makeResp() MyPacksResp {
 	return MyPacksResp{}
+}
+```
+
+**同时，test项目下export目录，生成getTwoPacks_test.go文件：**
+```golang
+package handler
+
+import (
+	"reflect"
+	"testing"
+)
+
+func TestMyPacks(t *testing.T) {
+	type args struct {
+		req MyPacksReq
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    MyPacksResp
+		wantErr bool
+	}{
+	// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		got, err := MyPacks(tt.args.req)
+		if (err != nil) != tt.wantErr {
+			t.Errorf("%q. MyPacks() error = %v, wantErr %v", tt.name, err, tt.wantErr)
+			continue
+		}
+		if !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("%q. MyPacks() = %v, want %v", tt.name, got, tt.want)
+		}
+	}
+}
+
+func Test_pack1(t *testing.T) {
+	type args struct {
+		req pack1Req
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    pack1Resp
+		wantErr bool
+	}{
+	// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		got, err := pack1(tt.args.req)
+		if (err != nil) != tt.wantErr {
+			t.Errorf("%q. pack1() error = %v, wantErr %v", tt.name, err, tt.wantErr)
+			continue
+		}
+		if !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("%q. pack1() = %v, want %v", tt.name, got, tt.want)
+		}
+	}
+}
+
+func Test_pack2(t *testing.T) {
+	type args struct {
+		req pack2Req
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    pack2Resp
+		wantErr bool
+	}{
+	// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		got, err := pack2(tt.args.req)
+		if (err != nil) != tt.wantErr {
+			t.Errorf("%q. pack2() error = %v, wantErr %v", tt.name, err, tt.wantErr)
+			continue
+		}
+		if !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("%q. pack2() = %v, want %v", tt.name, got, tt.want)
+		}
+	}
 }
 ```

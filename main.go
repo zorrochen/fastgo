@@ -4,14 +4,14 @@ import (
 	. "fastgo/handler"
 	"flag"
 	"log"
+	"path"
 	"runtime"
 )
 
 var (
 	serviceName = flag.String("srv", "tmp", "service")
 	filepath    = flag.String("filepath", "", "filepath")
-	funcType    = flag.Int("type", 1, "function type")
-	mockFlag    = flag.Bool("mock", false, "mock data switch")
+	testFlag    = flag.Bool("t", false, "test switch")
 )
 
 func main() {
@@ -25,7 +25,12 @@ func main() {
 		return
 	}
 	genRstFormat := ParseAndGen(info)
-	Export(genRstFormat, *serviceName, "newexport")
+	funcName := path.Base(*filepath)
+	Export(genRstFormat, *serviceName, funcName)
+
+	if *testFlag {
+		ExportTests(*serviceName, funcName)
+	}
 
 	log.Print("server stoped")
 }
