@@ -10,7 +10,7 @@
 6. db层，结合orm库，SQL自动生成（开发中...）
 
 ## 期望解决的问题
-1. 节省大量编码成本
+1. 节省编码成本
 2. 保证每个函数都有注释、文档、测试用例
 3. 多人协作，代码质量控制，差异控制在极小单元
 4. 实现单元函数高度内聚，增强可复用性
@@ -34,6 +34,7 @@ fastgo:
 
 ## 依赖
 * [github.com/ChimeraCoder/gojson](http://github.com/ChimeraCoder/gojson)
+* [github.com/cweill/gotests](http://github.com/cweill/gotests)
 
 ## 举例
 >客户端调用server, 获取两个包裹， 服务端分别获取两个包裹，组装后返回
