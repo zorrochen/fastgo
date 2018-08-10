@@ -3,7 +3,7 @@ package handler
 import (
 	"bytes"
 	"fmt"
-	"github.com/ChimeraCoder/gojson"
+	"github.com/zorrochen/gojson"
 	"go/format"
 	"strings"
 	"text/template"
