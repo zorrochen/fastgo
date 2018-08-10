@@ -29,10 +29,10 @@ fastgo:
   -t bool
             是否生成单元测试用例, 默认(false)
 ```
->make
->./fastgo -filepath -t ./example/handler
->./fastgo -filepath ./example/simple
->./fastgo -filepath ./example/proxy
+>make  
+>./fastgo -filepath -t ./example/handler  
+>./fastgo -filepath ./example/simple  
+>./fastgo -filepath ./example/proxy  
 
 ## 依赖
 * [github.com/ChimeraCoder/gojson](http://github.com/ChimeraCoder/gojson)
