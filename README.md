@@ -29,9 +29,16 @@ fastgo:
   -t bool
             是否生成单元测试用例, 默认(false)
 ```
+编译：
 >make  
+
+生成handler模式代码，及测试用例
 >./fastgo -filepath -t ./example/handler  
+
+生成simple模式代码
 >./fastgo -filepath ./example/simple  
+
+生成proxy模式代码
 >./fastgo -filepath ./example/proxy  
 
 ## 依赖
