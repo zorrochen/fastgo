@@ -33,7 +33,7 @@ fastgo:
 >make  
 
 生成handler模式代码，及测试用例
->./fastgo -filepath -t ./example/handler  
+>./fastgo -filepath ./example/handler -t
 
 生成simple模式代码
 >./fastgo -filepath ./example/simple  
