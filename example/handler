@@ -1,0 +1,53 @@
+@startuml
+title MyPacks(获取我的包裹)
+start
+:pack1;
+note right: 包裹1
+:pack2;
+note right: 包裹2
+stop
+@enduml
+
+###
+MyPacks
+
+{
+  "uid": "001"
+}
+
+{
+	"error_code": 0,
+	"error_msg": "ok",
+	"data": {
+		"pack1": "1",
+  	"pack2": "2"
+	}
+}
+###
+pack1
+
+{
+  "uid": "001"
+}
+
+{
+	"error_code": 0,
+	"error_msg": "ok",
+	"data": {
+		"pack1": "1"
+	}
+}
+###
+pack2
+
+{
+  "uid": "001"
+}
+
+{
+	"error_code": 0,
+	"error_msg": "ok",
+	"data": {
+		"pack2": "2"
+  }
+}

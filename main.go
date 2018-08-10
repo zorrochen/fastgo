@@ -4,7 +4,6 @@ import (
 	. "fastgo/handler"
 	"flag"
 	"log"
-	"path"
 	"runtime"
 )
 
@@ -24,12 +23,14 @@ func main() {
 	if err != nil {
 		return
 	}
-	genRstFormat := ParseAndGen(info)
-	funcName := path.Base(*filepath)
-	Export(genRstFormat, *serviceName, funcName)
 
+	// code
+	genRstFormat := ParseAndGen(info)
+	ExportInCurrentPath(genRstFormat, *filepath)
+
+	// testcase
 	if *testFlag {
-		ExportTests(*serviceName, funcName)
+		ExportTestsInCurrentPath(*filepath)
 	}
 
 	log.Print("server stoped")

@@ -1,0 +1,27 @@
+pack1#包裹1
+
+{
+  "uid": "001"
+}
+
+{
+	"error_code": 0,
+	"error_msg": "ok",
+	"data": {
+		"pack1": "1"
+	}
+}
+###
+pack2#包裹2
+
+{
+  "uid": "001"
+}
+
+{
+	"error_code": 0,
+	"error_msg": "ok",
+	"data": {
+		"pack2": "2"
+  }
+}

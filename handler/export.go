@@ -2,8 +2,6 @@ package handler
 
 import (
 	"fmt"
-	"os"
-	"path"
 )
 
 const (
@@ -12,26 +10,37 @@ const (
 	TYPE_PROXY  = 3
 )
 
-func Export(code string, module string, FuncName string) {
-	gopath := os.Getenv("GOPATH")
-
-	exportfile := fmt.Sprintf("%s/src/%s/export/%s.go", gopath, module, FuncName)
-	exist, _ := PathExists(exportfile)
-	// 已存在，不写入
-	if exist {
-		fmt.Printf("already exist.\n")
-		return
-	}
-	os.MkdirAll(path.Dir(exportfile), os.ModePerm)
+func ExportInCurrentPath(code string, currentFile string) {
+	exportfile := fmt.Sprintf("%s.go", currentFile)
 	writeFile(exportfile, code)
 	return
 }
 
-func ExportTests(module string, FuncName string) {
-	gopath := os.Getenv("GOPATH")
-	exportfile := fmt.Sprintf("%s/src/%s/export/%s.go", gopath, module, FuncName)
+func ExportTestsInCurrentPath(currentFile string) {
+	exportfile := fmt.Sprintf("%s.go", currentFile)
 	gotestsRun(exportfile)
 }
+
+// func Export(code string, module string, FuncName string) {
+// 	gopath := os.Getenv("GOPATH")
+//
+// 	exportfile := fmt.Sprintf("%s/src/%s/export/%s.go", gopath, module, FuncName)
+// 	exist, _ := PathExists(exportfile)
+// 	// 已存在，不写入
+// 	if exist {
+// 		fmt.Printf("already exist.\n")
+// 		return
+// 	}
+// 	os.MkdirAll(path.Dir(exportfile), os.ModePerm)
+// 	writeFile(exportfile, code)
+// 	return
+// }
+//
+// func ExportTests(module string, FuncName string) {
+// 	gopath := os.Getenv("GOPATH")
+// 	exportfile := fmt.Sprintf("%s/src/%s/export/%s.go", gopath, module, FuncName)
+// 	gotestsRun(exportfile)
+// }
 
 // func Export(code string, module string, FuncName string, funcType int) {
 // 	gopath := os.Getenv("GOPATH")
