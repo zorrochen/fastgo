@@ -1,8 +1,8 @@
 package main
 
 import (
-	. "fastgo/handler"
 	"flag"
+	. "github.com/zorrochen/fastgo/handler"
 	"log"
 	"runtime"
 )

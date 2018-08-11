@@ -1,9 +1,9 @@
 {
 	"comment": "",
-	"ignore": "",
+	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "FMxD5iCRzpg3bcdEH1k3c6/D02o=",
+			"checksumSHA1": "/zG89Iu9CNYwnQon5PwatjT0EXw=",
 			"path": "github.com/cweill/gotests",
 			"revision": "651680c71b22b1164ee36398b009b2da5839e694",
 			"revisionTime": "2017-11-20T04:41:48Z"
@@ -45,10 +45,29 @@
 			"revisionTime": "2017-11-20T04:41:48Z"
 		},
 		{
-			"checksumSHA1": "V6xAuteQsmbk91n3sQhgtAAvVZY=",
+			"checksumSHA1": "QpYOWDAA5qN5O8Mepq3coqlY9SE=",
 			"path": "github.com/zorrochen/gojson",
-			"revision": "dc00bce1c727b1bc2d0e14f0b70c78623f12007a",
-			"revisionTime": "2018-08-10T02:49:29Z"
+			"revision": "b80e9caaea279df61a78ca9f637a66ee3fae23e6",
+			"revisionTime": "2018-08-10T03:17:36Z"
+		},
+		{
+			"checksumSHA1": "AsL/fTkY1p1HNVSikhVZJd++Nrk=",
+			"path": "golang.org/x/tools/go/ast/astutil",
+			"revision": "25101aadb97aa42907eee6a238d6d26a6cb3c756",
+			"revisionTime": "2018-01-25T02:48:19Z"
+		},
+		{
+			"checksumSHA1": "GqWPrTiimuJ9Z1Tbrc4oWupdr8Y=",
+			"path": "golang.org/x/tools/imports",
+			"revision": "25101aadb97aa42907eee6a238d6d26a6cb3c756",
+			"revisionTime": "2018-01-25T02:48:19Z"
+		},
+		{
+			"checksumSHA1": "dJsLaltE9R6pnm5lJtC1Ne7UGoQ=",
+			"origin": "github.com/zorrochen/gojson/vendor/gopkg.in/yaml.v2",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "b80e9caaea279df61a78ca9f637a66ee3fae23e6",
+			"revisionTime": "2018-08-10T03:17:36Z"
 		}
 	],
 	"rootPath": "fastgo"
