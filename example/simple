@@ -1,27 +1,49 @@
-pack1#包裹1
+login#登录
 
 {
-  "uid": "001"
+  "phone": "10086",
+  "client_os": "andorid",
+  "device_id": "123",
+  "client_ip": "192.168.1.10",
+  "random_code": "9527"
 }
 
 {
-	"error_code": 0,
-	"error_msg": "ok",
-	"data": {
-		"pack1": "1"
-	}
+    "retcode": 0,
+    "retmsg": "成功",
+    "data": {
+      "uid": "ID001",
+      "token": "xxx"
+    }
 }
 ###
-pack2#包裹2
+CheckRandomCode#校验验证码
 
 {
-  "uid": "001"
+  "phone": "10086",
+  "random_code": "9527"
 }
 
 {
-	"error_code": 0,
-	"error_msg": "ok",
-	"data": {
-		"pack2": "2"
-  }
+    "checkRst": true
+}
+###
+GetUserInfo#依据手机号获取用户ID
+
+{
+  "phone": "10086"
+}
+
+{
+    "uid": "ID001"
+}
+###
+GenerateToken#生成token
+
+{
+  "phone": "10086"
+}
+
+{
+    "token": "xxx"
 }

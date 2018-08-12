@@ -1,53 +1,62 @@
 @startuml
-title MyPacks(获取我的包裹)
+title login(登录)
 start
-:pack1;
-note right: 包裹1
-:pack2;
-note right: 包裹2
+:CheckRandomCode;
+note right: 校验验证码
+:GetUserInfo;
+note right: 依据手机号获取用户ID
+:GenerateToken;
+note right: 生成token
 stop
 @enduml
 
 ###
-MyPacks
+login
 
 {
-  "uid": "001"
+  "phone": "10086",
+  "client_os": "andorid",
+  "device_id": "123",
+  "client_ip": "192.168.1.10",
+  "random_code": "9527"
 }
 
 {
-	"error_code": 0,
-	"error_msg": "ok",
-	"data": {
-		"pack1": "1",
-  	"pack2": "2"
-	}
-}
-###
-pack1
-
-{
-  "uid": "001"
-}
-
-{
-	"error_code": 0,
-	"error_msg": "ok",
-	"data": {
-		"pack1": "1"
-	}
+    "retcode": 0,
+    "retmsg": "成功",
+    "data": {
+      "uid": "ID001",
+      "token": "xxx"
+    }
 }
 ###
-pack2
+CheckRandomCode
 
 {
-  "uid": "001"
+  "phone": "10086",
+  "random_code": "9527"
 }
 
 {
-	"error_code": 0,
-	"error_msg": "ok",
-	"data": {
-		"pack2": "2"
-  }
+    "checkRst": true
+}
+###
+GetUserInfo
+
+{
+  "phone": "10086"
+}
+
+{
+    "uid": "ID001"
+}
+###
+GenerateToken
+
+{
+  "phone": "10086"
+}
+
+{
+    "token": "xxx"
 }
