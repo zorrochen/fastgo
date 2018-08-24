@@ -6,7 +6,7 @@ export GOPATH=$(BUILD_DIR)
 
 build: 
 	@mkdir -p $(BUILD_DIR)/src && cp -rf $(DIR) $(BUILD_DIR)/src
-	@go build -o $(BINFILE)
+	@go build -o $(BINFILE) -ldflags "-w" 
 	@rm -rf $(BUILD_DIR)
 	@echo "$(BINFILE) is created."
 
