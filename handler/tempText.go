@@ -96,7 +96,7 @@ const TEMP_PROXY = `//request
 
 //模板: 数据流涉及的请求封装
 const TEMP_REQ_MAKER = `//组装{{.funcname}}的请求数据
-            func (*innerData{{.mainFunc}}) make{{.funcname}}Req() ({{.funcname}}Req) {
+            func (innerData *innerData{{.mainFunc}}) make{{.funcname}}Req() ({{.funcname}}Req) {
               return {{.funcname}}Req{}
             }`
 
