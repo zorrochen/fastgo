@@ -57,7 +57,7 @@ func SimpleGenMode(funcdata string) GenMode {
 	ss := strings.Split(funcdata, "###")
 
 	for _, v := range ss {
-		onefuncinfo := strings.Split(v, "\n\n")
+		onefuncinfo := strings.Split(v, "\r\n\r\n")
 		var fi baseFunc
 		sss := strings.Split(onefuncinfo[0], "#")
 		fi.FuncName = strings.TrimSpace(sss[0])
