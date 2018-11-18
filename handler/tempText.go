@@ -109,3 +109,44 @@ const TEMP_MOCK_FUNC = `//mock {{.funcname}}
               return rst
             }
             `
+
+//模板: 接口文档
+const TEMP_API = `
+{{$methodget := "get"}}
+{{$methodpost := "post"}}
+
+## {{ .Title }}aaa
+
+### 请求
+{{- if eq .Method $methodget}}
+@1
+curl '{{.Path}}' 
+  -X GET 
+  -H 'content-type: application/x-www-form-urlencoded;charset=utf-8' 
+@1
+{{- else if eq .Method $methodpost}}
+@1
+curl '{{.Path}}' 
+  -X POST 
+  -H 'content-type: application/json' 
+  -d '{{.Req}}' 
+@1
+{{- end}}
+
+
+| 字段 | 说明 |
+| --- | --- | 
+{{- range $k, $v := .SummaryReq}}
+| {{$k}} | {{$v}} |
+{{- end}}
+
+### 响应
+@1
+{{.Resp}}
+@1
+
+| 字段 | 说明 |
+| --- | --- | 
+{{- range $k, $v := .SummaryResp}}
+| {{$k}} | {{$v}} |
+{{- end}}`

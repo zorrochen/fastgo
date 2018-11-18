@@ -2,11 +2,14 @@ package handler
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
-	"github.com/zorrochen/gojson"
 	"go/format"
+	"html"
 	"strings"
 	"text/template"
+
+	"github.com/zorrochen/gojson"
 )
 
 type GenMode interface {
@@ -87,6 +90,8 @@ type baseFunc struct {
 	FuncReqJson  string
 	FuncRespJson string
 	Body         string
+	ReqSummary   map[string]string
+	RespSummary  map[string]string
 }
 
 func GenOneFunc(fi baseFunc) string {
@@ -267,3 +272,29 @@ func (fi *ProxyFunc) genBody() string {
 //
 // 	return b2.String()
 // }
+
+type apiMeta struct {
+	Title       string
+	Method      string
+	Path        string
+	Req         string
+	Resp        string
+	SummaryReq  map[string]string
+	SummaryResp map[string]string
+}
+
+func JsonToIndent(s string) string {
+	tempMap := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(s), &tempMap)
+	rst, _ := json.MarshalIndent(tempMap, "    ", "")
+	return string(rst)
+}
+
+func genApi(am apiMeta) string {
+	t, _ := template.New("").Parse(TEMP_API)
+	b := &bytes.Buffer{}
+	t.Execute(b, &am)
+	rstStr := strings.Replace(b.String(), "@1", "```", -1)
+	rstUnescape := html.UnescapeString(rstStr)
+	return rstUnescape
+}
