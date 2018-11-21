@@ -9,6 +9,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/zorrochen/fastgo/jsonLD"
 	"github.com/zorrochen/gojson"
 )
 
@@ -66,6 +67,23 @@ func (m *HandlerMode) Gen() (string, error) {
 	b := &bytes.Buffer{}
 	t.Execute(b, genData)
 	return b.String(), nil
+}
+
+func (m *HandlerMode) GenApi() (string, error) {
+	// api
+	req1, reqSummary1 := jsonLD.Unmarshal(m.MainFunc.FuncReqJson)
+	resp1, respSummary1 := jsonLD.Unmarshal(m.MainFunc.FuncRespJson)
+	am := ApiMeta{
+		Title:       m.MainFunc.FuncName,
+		Method:      "post",
+		Path:        "/aaa",
+		Req:         req1,
+		Resp:        resp1,
+		SummaryReq:  reqSummary1,
+		SummaryResp: respSummary1,
+	}
+	apiRst := GenApi(am)
+	return apiRst, nil
 }
 
 //===================== proxyMode =====================
@@ -273,7 +291,7 @@ func (fi *ProxyFunc) genBody() string {
 // 	return b2.String()
 // }
 
-type apiMeta struct {
+type ApiMeta struct {
 	Title       string
 	Method      string
 	Path        string
@@ -290,7 +308,7 @@ func JsonToIndent(s string) string {
 	return string(rst)
 }
 
-func genApi(am apiMeta) string {
+func GenApi(am ApiMeta) string {
 	t, _ := template.New("").Parse(TEMP_API)
 	b := &bytes.Buffer{}
 	t.Execute(b, &am)

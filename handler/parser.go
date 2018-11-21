@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+
+	"github.com/zorrochen/fastgo/jsonLD"
 )
 
 func Parse(info string) GenMode {
@@ -91,6 +93,8 @@ func HandlerGenMode(alldata string) GenMode {
 	hm.MainFunc.FuncNote = umlinfo.mainFunc.FuncNote
 	hm.MainFunc.FuncReqJson = funcMap[hm.MainFunc.FuncName].FuncReqJson
 	hm.MainFunc.FuncRespJson = funcMap[hm.MainFunc.FuncName].FuncRespJson
+	hm.MainFunc.FuncReqJson, hm.MainFunc.ReqSummary = jsonLD.Unmarshal(hm.MainFunc.FuncReqJson)
+	hm.MainFunc.FuncRespJson, hm.MainFunc.RespSummary = jsonLD.Unmarshal(hm.MainFunc.FuncRespJson)
 	for _, v := range umlinfo.subFuncList {
 		onefi := baseFunc{}
 		onefi.FuncName = v.FuncName

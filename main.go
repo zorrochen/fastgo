@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
-	. "github.com/zorrochen/fastgo/handler"
 	"log"
 	"runtime"
+
+	"github.com/zorrochen/fastgo/handler"
 )
 
 var (
@@ -19,18 +20,18 @@ func main() {
 	// 启动打印(附:cpu个数)
 	log.Printf("start...(CPU:%d)", runtime.NumCPU())
 
-	info, err := ReadFile(*filepath)
+	info, err := handler.ReadFile(*filepath)
 	if err != nil {
 		return
 	}
 
 	// code
-	genRstFormat := ParseAndGen(info)
-	ExportInCurrentPath(genRstFormat, *filepath)
+	genRstFormat := handler.ParseAndGen(info)
+	handler.ExportInCurrentPath(genRstFormat, *filepath)
 
 	// testcase
 	if *testFlag {
-		ExportTestsInCurrentPath(*filepath)
+		handler.ExportTestsInCurrentPath(*filepath)
 	}
 
 	log.Print("server stoped")
