@@ -15,8 +15,11 @@ func Unmarshal(s string) (data string, linked map[string]string) {
 		return
 	}
 
-	linkedObj := decodeObj["@context"]
 	linkedStr := map[string]string{}
+	linkedObj, ok := decodeObj["@context"]
+	if !ok {
+		return s, linkedStr
+	}
 
 	if reflect.TypeOf(linkedObj).Kind() != reflect.Map {
 		return
