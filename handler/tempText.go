@@ -11,6 +11,37 @@ const TEMP_FUNC = `
               return resp, nil
             }`
 
+//模板: 普通函数(输入为空)
+const TEMP_FUNC_NOINPUT = `
+            //{{.funcnote}}
+            func {{.funcname}}() ({{.funcname}}Resp, error) {
+              resp := {{.funcname}}Resp{}
+              {{- if .body}}
+                {{.body}}
+              {{- end}}
+              return resp, nil
+            }`
+
+//模板: 普通函数(输出为空)
+const TEMP_FUNC_NOOUTPUT = `
+            //{{.funcnote}}
+            func {{.funcname}}(req {{.funcname}}Req) error {
+              {{- if .body}}
+                {{.body}}
+              {{- end}}
+              return nil
+            }`
+
+//模板: 普通函数(输入为空 && 输出为空)
+const TEMP_FUNC_NOBOTH = `
+            //{{.funcnote}}
+            func {{.funcname}}() error {
+              {{- if .body}}
+                {{.body}}
+              {{- end}}
+              return nil
+            }`
+
 //模板: handler的主函数
 const TEMP_HANDLER = `package handler
 
@@ -50,18 +81,41 @@ const TEMP_HANDLER_BODY = `//{{.funcnote}}
             }
             innerData.resp{{.funcname}} = resp{{.funcname}}`
 
-//模板: handler的数据流集
-const TEMP_HANDLER_INNER_DATA_INIT = `//单个请求涉及的中间数据集合
-            type innerData{{- range .mainFunc}}{{.}}{{- end}} struct {
-              {{- range .mainFunc}}
-              req {{.}}Req
-              // resp {{.}}Resp   //(no need)
-              {{- end}}
-              {{- range .subFuncList}}
-              req{{.}} {{.}}Req
-              resp{{.}} {{.}}Resp
-              {{- end}}
+//模板: handler的body(输入为空)
+const TEMP_HANDLER_BODY_NO_REQ = `//{{.funcnote}}
+            resp{{.funcname}}, err := {{.funcname}}()
+            if err != nil {
+              return {{.mainFunc}}Resp{}, err
+            }
+            innerData.resp{{.funcname}} = resp{{.funcname}}`
+
+//模板: handler的body(输出为空)
+const TEMP_HANDLER_BODY_NO_RESP = `//{{.funcnote}}
+            innerData.req{{.funcname}} = innerData.make{{.funcname}}Req()
+            err := {{.funcname}}(innerData.req{{.funcname}})
+            if err != nil {
+              return {{.mainFunc}}Resp{}, err
             }`
+
+//模板: handler的body(输入为空&输出为空)
+const TEMP_HANDLER_BODY_NO_BOTH = `//{{.funcnote}}
+            err := {{.funcname}}()
+            if err != nil {
+              return {{.mainFunc}}Resp{}, err
+            }`
+
+// //模板: handler的数据流集
+// const TEMP_HANDLER_INNER_DATA_INIT = `//单个请求涉及的中间数据集合
+//             type innerData{{- range .mainFunc}}{{.}}{{- end}} struct {
+//               {{- range .mainFunc}}
+//               req {{.}}Req
+//               // resp {{.}}Resp   //(no need)
+//               {{- end}}
+//               {{- range .subFuncList}}
+//               req{{.}} {{.}}Req
+//               resp{{.}} {{.}}Resp
+//               {{- end}}
+//             }`
 
 //模板: handler的数据流集初始赋值
 const TEMP_HANDLER_INNER_DATA_DEFINE = `innerData := innerData{{.mainFunc}}{
@@ -70,7 +124,7 @@ const TEMP_HANDLER_INNER_DATA_DEFINE = `innerData := innerData{{.mainFunc}}{
 
 //模板: handler的结果组装
 const TEMP_HANDLER_MAKE_RESP = `//组装返回数据
-            func (*innerData{{.mainFunc}}) makeResp() {{.mainFunc}}Resp {
+            func (innerData *innerData{{.mainFunc}}) makeResp() {{.mainFunc}}Resp {
               return {{.mainFunc}}Resp{}
             }`
 
@@ -115,7 +169,7 @@ const TEMP_API = `
 {{$methodget := "get"}}
 {{$methodpost := "post"}}
 
-## {{ .Title }}aaa
+## {{ .Title }}
 
 ### 请求
 {{- if eq .Method $methodget}}

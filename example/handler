@@ -22,13 +22,14 @@ login
 }
 
 {
-    "retcode": 0,
+    "retcode": 1,
     "retmsg": "成功",
     "data": {
       "uid": "ID001",
       "token": "xxx"
     }
 }
+
 ###
 CheckRandomCode
 
@@ -40,6 +41,7 @@ CheckRandomCode
 {
     "checkRst": true
 }
+
 ###
 GetUserInfo
 
@@ -50,6 +52,7 @@ GetUserInfo
 {
     "uid": "ID001"
 }
+
 ###
 GenerateToken
 

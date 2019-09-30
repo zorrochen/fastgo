@@ -8,14 +8,14 @@ import (
 /**
   类json-LD格式，生成字段说明
 */
-func Unmarshal(s string) (data string, linked map[string]string) {
+func Unmarshal(s string) (data string, linkedStr map[string]string) {
 	decodeObj := map[string]interface{}{}
 	err := json.Unmarshal([]byte(s), &decodeObj)
 	if err != nil {
 		return
 	}
 
-	linkedStr := map[string]string{}
+	linkedStr = map[string]string{}
 	linkedObj, ok := decodeObj["@context"]
 	if !ok {
 		return s, linkedStr
@@ -32,6 +32,6 @@ func Unmarshal(s string) (data string, linked map[string]string) {
 	}
 
 	delete(decodeObj, "@context")
-	dataJson, _ := json.Marshal(decodeObj)
+	dataJson, _ := json.MarshalIndent(decodeObj, "", "  ")
 	return string(dataJson), linkedStr
 }

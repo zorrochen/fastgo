@@ -9,7 +9,6 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/zorrochen/fastgo/jsonLD"
 	"github.com/zorrochen/gojson"
 )
 
@@ -54,6 +53,9 @@ func (m *HandlerMode) Gen() (string, error) {
 
 	reqMakerCodeList := []string{}
 	for _, v := range m.SubFuncList {
+		if IsNoneParam(v.FuncReqJson) {
+			continue
+		}
 		reqMakerCodeList = append(reqMakerCodeList, genReqMaker(m.MainFunc.FuncName, v.FuncName))
 	}
 	genData["reqMakerCodeList"] = reqMakerCodeList
@@ -66,21 +68,24 @@ func (m *HandlerMode) Gen() (string, error) {
 	}
 	b := &bytes.Buffer{}
 	t.Execute(b, genData)
+
+	apidoc, _ := m.GenApi()
+	fmt.Println(apidoc)
 	return b.String(), nil
 }
 
 func (m *HandlerMode) GenApi() (string, error) {
 	// api
-	req1, reqSummary1 := jsonLD.Unmarshal(m.MainFunc.FuncReqJson)
-	resp1, respSummary1 := jsonLD.Unmarshal(m.MainFunc.FuncRespJson)
+	// req1, reqSummary1 := jsonLD.Unmarshal(m.MainFunc.FuncReqJson)
+	// resp1, respSummary1 := jsonLD.Unmarshal(m.MainFunc.FuncRespJson)
 	am := ApiMeta{
 		Title:       m.MainFunc.FuncName,
 		Method:      "post",
 		Path:        "/aaa",
-		Req:         req1,
-		Resp:        resp1,
-		SummaryReq:  reqSummary1,
-		SummaryResp: respSummary1,
+		Req:         m.MainFunc.FuncReqJson,
+		Resp:        m.MainFunc.FuncRespJson,
+		SummaryReq:  m.MainFunc.ReqSummary,
+		SummaryResp: m.MainFunc.RespSummary,
 	}
 	apiRst := GenApi(am)
 	return apiRst, nil
@@ -112,31 +117,65 @@ type baseFunc struct {
 	RespSummary  map[string]string
 }
 
+func IsNoneParam(data string) bool {
+	var dataDecoded map[string]interface{}
+	json.Unmarshal([]byte(data), &dataDecoded)
+
+	isNone := false
+	if len(dataDecoded) == 0 {
+		isNone = true
+	}
+	return isNone
+}
+
 func GenOneFunc(fi baseFunc) string {
 	exHeadStr := fmt.Sprintf("//================= %s =================\n", fi.FuncName)
 
 	reqName := fi.FuncName + "Req"
 	respName := fi.FuncName + "Resp"
 
-	req := strings.NewReader(fi.FuncReqJson)
-	rstreq, err := gojson.Generate(req, gojson.ParseJson, reqName, "", []string{"json"}, false, true)
-	if err != nil {
-		fmt.Printf("err:%v\n", err)
-		return ""
+	isNoneReq := IsNoneParam(fi.FuncReqJson)
+	isNoneResp := IsNoneParam(fi.FuncRespJson)
+
+	rstReq := ""
+	rstResp := ""
+	var err error
+
+	if !isNoneReq {
+		req := strings.NewReader(fi.FuncReqJson)
+		rstreq, err := gojson.Generate(req, gojson.ParseJson, reqName, "", []string{"json"}, false, true)
+		if err != nil {
+			fmt.Printf("err:%v\n", err)
+			return ""
+		}
+		rstReq = string(rstreq)
 	}
 
-	resp := strings.NewReader(fi.FuncRespJson)
-	rstresp, err := gojson.Generate(resp, gojson.ParseJson, respName, "", []string{"json"}, false, true)
-	if err != nil {
-		fmt.Printf("err:%v\n", err)
-		return ""
+	if !isNoneResp {
+		resp := strings.NewReader(fi.FuncRespJson)
+		rstresp, err := gojson.Generate(resp, gojson.ParseJson, respName, "", []string{"json"}, false, true)
+		if err != nil {
+			fmt.Printf("err:%v\n", err)
+			return ""
+		}
+		rstResp = string(rstresp)
+	}
+
+	tmpSelect := TEMP_FUNC
+	switch {
+	case isNoneReq && !isNoneResp:
+		tmpSelect = TEMP_FUNC_NOINPUT
+	case !isNoneReq && isNoneResp:
+		tmpSelect = TEMP_FUNC_NOOUTPUT
+	case isNoneReq && isNoneResp:
+		tmpSelect = TEMP_FUNC_NOBOTH
 	}
 
 	genData := map[string]string{}
 	genData["funcname"] = fi.FuncName
 	genData["funcnote"] = fi.FuncNote
 	genData["body"] = fi.Body
-	t, err := template.New("").Parse(TEMP_FUNC)
+	t, err := template.New("").Parse(tmpSelect)
 	if err != nil {
 		fmt.Printf("err:%v\n", err)
 		return ""
@@ -144,7 +183,7 @@ func GenOneFunc(fi baseFunc) string {
 	b := &bytes.Buffer{}
 	t.Execute(b, genData)
 
-	retStr := exHeadStr + string(rstreq) + "\n\n" + string(rstresp) + "\n\n" + b.String() + "\n\n"
+	retStr := exHeadStr + rstReq + "\n\n" + rstResp + "\n\n" + b.String() + "\n\n"
 	newStr, err := format.Source([]byte(retStr))
 	if err != nil {
 		fmt.Printf("err:%v\n", err)
@@ -160,7 +199,20 @@ func genInvokedCode(mainFunc string, fi baseFunc) string {
 	genData["mainFunc"] = mainFunc
 	genData["funcname"] = fi.FuncName
 	genData["funcnote"] = fi.FuncNote
-	t, err := template.New("").Parse(TEMP_HANDLER_BODY)
+
+	isNoneReq := IsNoneParam(fi.FuncReqJson)
+	isNoneResp := IsNoneParam(fi.FuncRespJson)
+	tmpSelect := TEMP_HANDLER_BODY
+	switch {
+	case isNoneReq && !isNoneResp:
+		tmpSelect = TEMP_HANDLER_BODY_NO_REQ
+	case !isNoneReq && isNoneResp:
+		tmpSelect = TEMP_HANDLER_BODY_NO_RESP
+	case isNoneReq && isNoneResp:
+		tmpSelect = TEMP_HANDLER_BODY_NO_BOTH
+	}
+
+	t, err := template.New("").Parse(tmpSelect)
 	if err != nil {
 		fmt.Printf("err:%v\n", err)
 		return ""
@@ -170,19 +222,31 @@ func genInvokedCode(mainFunc string, fi baseFunc) string {
 	return b.String()
 }
 
-func genInnerDataCode(mainFuncName string, subFuncList []string) string {
-	genData := map[string][]string{}
-	genData["mainFunc"] = []string{mainFuncName}
-	genData["subFuncList"] = subFuncList
-	t, err := template.New("").Parse(TEMP_HANDLER_INNER_DATA_INIT)
-	if err != nil {
-		fmt.Printf("err:%v\n", err)
-		return ""
-	}
-	b := &bytes.Buffer{}
-	t.Execute(b, genData)
-	return b.String()
-}
+const TEMP_HANDLER_INNER_DATA_INIT = `//单个请求涉及的中间数据集合
+            type innerData{{- range .mainFunc}}{{.}}{{- end}} struct {
+              {{- range .mainFunc}}
+              req {{.}}Req
+              // resp {{.}}Resp   //(no need)
+              {{- end}}
+              {{- range .subFuncList}}
+              req{{.}} {{.}}Req
+              resp{{.}} {{.}}Resp
+              {{- end}}
+            }`
+
+// func genInnerDataCode(mainFuncName string, subFuncList []string) string {
+// 	genData := map[string][]string{}
+// 	genData["mainFunc"] = []string{mainFuncName}
+// 	genData["subFuncList"] = subFuncList
+// 	t, err := template.New("").Parse(TEMP_HANDLER_INNER_DATA_INIT)
+// 	if err != nil {
+// 		fmt.Printf("err:%v\n", err)
+// 		return ""
+// 	}
+// 	b := &bytes.Buffer{}
+// 	t.Execute(b, genData)
+// 	return b.String()
+// }
 
 func genInnerDataDefineCode(mainFuncName string) string {
 	genData := map[string]string{}
@@ -227,11 +291,38 @@ func genMakeResp(mainFunc string) string {
 func (m *HandlerMode) genInnerDataStruct() string {
 	rst := "\n"
 	mainFuncName := m.MainFunc.FuncName
-	subFuncList := []string{}
+
+	subGenStr := ""
 	for _, v := range m.SubFuncList {
-		subFuncList = append(subFuncList, v.FuncName)
+		if !IsNoneParam(v.FuncReqJson) {
+			subGenStr += fmt.Sprintf(`req%s %sReq
+			`, v.FuncName, v.FuncName)
+		} else {
+			subGenStr += fmt.Sprintf(`//req%s %sReq  //(empty)
+			`, v.FuncName, v.FuncName)
+		}
+
+		if !IsNoneParam(v.FuncRespJson) {
+			subGenStr += fmt.Sprintf(`resp%s %sResp
+			`, v.FuncName, v.FuncName)
+		} else {
+			subGenStr += fmt.Sprintf(`//resp%s %sResp  //(empty)
+			`, v.FuncName, v.FuncName)
+		}
 	}
-	rst += genInnerDataCode(mainFuncName, subFuncList)
+
+	genStr := fmt.Sprintf(`
+	//单个请求涉及的中间数据集合
+	type innerData%s struct {
+	  req %sReq
+	  // resp %sResp  //(no need)
+	  %s
+	}
+	`, mainFuncName, mainFuncName, mainFuncName, subGenStr)
+
+	fmt.Printf("%s\n", genStr)
+
+	rst += genStr
 	return rst
 }
 

@@ -6,12 +6,20 @@ WxGetToken#获取AccessToken#get#/cgi-bin/gettoken#(proxy)
 }
 
 {
-	"errorcode": 0,
-	"errormsg": "ok",
-  "access_token": "accesstoken000001",
-  "expires_in": 7200
+	"iss": "http://test.riodev.oa.com/rio/dex",
+	"sub": "1d985beb-b975-4abe-923e-8cac2c53a3a2",
+	"aud": ["smartgate"],
+	"exp": 1568691862,
+	"iat": 1568605462,
+	"at_hash": "m0-aEthPVBXGWtrWAsbOFw",
+	"email_verified": true,
+	"name": "admin",
+	"federated_claims": {
+		"connector_id": "rio-atlas",
+		"user_id": "1d985beb-b975-4abe-923e-8cac2c53a3a2",
+		"user_info": "admin"
+	}
 }
-
 ###
 WxCorpMsgSend#企业号消息发送#post#/cgi-bin/message/send#(proxy)
 
